@@ -1,6 +1,12 @@
+body {
+    font-family: Arial;
+}
+
 * {
     box-sizing: border-box;
+    outline: none;
 }
+
 *:before, *:after {
     box-sizing: inherit;
 }
@@ -31,6 +37,70 @@
     min-height: 120px;
     min-width: 200px;
     display: inline-block;
+    position: relative;
+    cursor: pointer;
+}
+
+.add-event [type="text"] {
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 5px;
+    display: block;
+    z-index: 2;
+}
+
+.add-event {
+    position: absolute;
+    bottom: -215px;
+    left: -150px;
+    width: 400px;
+    padding: 20px;
+    background-color: #fff;
+    z-index: 2;
+    border: 1px solid #aeaeae;
+    border-radius: 3px;
+}
+
+/*.add-event:after {
+    content: '';
+    position: absolute;
+    border: 10px solid transparent;
+    border-bottom: 10px solid #fff;
+    top: -20px;
+    left: 0;
+    right: 0;
+    margin: auto;
+    width: 10px;
+}*/
+
+.close {
+    font-size: 35px;
+    float: right;
+    color: #999;
+    border: none;
+    background: transparent;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    cursor: pointer;
+}
+
+.primary-btn {
+    background-color: #488fff;
+    border-radius: 3px;
+    color: #fff;
+    border: 1px solid #2351ff;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.task-title {
+    margin: 0;
+    margin-bottom: 20px;
+}
+
+.create-event-btn {
+    float: right;
 }
 
 .day > .head {
