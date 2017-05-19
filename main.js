@@ -129,7 +129,7 @@
         // show add task dialog on day click
         addEventListener(document, 'click', function (e) {
 
-            if (!(e.target.className == 'day-wrap')) {
+            if (!(e.target.className == 'day-wrap') || (e.target.parentNode.className.indexOf("adj-month") !== -1)) {
                 return;
             }
 
@@ -181,10 +181,31 @@
                     <input type="text" class="event-title" value="${eventData.eventName}">
                     <input type="text" class="event-date" value="${eventData.date}">
                     <textarea rows="6" cols="48" name="note" class="note">${eventData.note}</textarea>
-                    <button type="button" class="primary-btn close-btn edit-btn" data-edit-event-id="${eventData.id}">Close</button>
-                    <button type="button" class="primary-btn">Delete</button>
+                    <button type="button" class="default-btn close-btn edit-btn" data-edit-event-id="${eventData.id}">Close</button>
+                    <button type="button" class="primary-btn delete-event-btn" data-edit-event-id="${eventData.id}">Delete</button>
                 </div>
             `);
+        });
+
+        // delete event
+        addEventListener(document, 'click', function (e) {
+
+            if (!(e.target.className.indexOf("delete-event-btn") !== -1)) {
+                return;
+            }
+
+            var event = e.target;
+            var eventId = event.getAttribute('data-edit-event-id');
+
+            events.forEach(function (item, i) {
+                console.log(item);
+                console.log(eventId);
+                if (item.id == eventId) {
+                    events.splice(eventId - 1, 1);
+                }
+            });
+
+            renderCalendar();
         });
 
         // create event on create btn click
@@ -217,7 +238,7 @@
             if (addEventNameInput && eventDate) {
 
                 events.push({
-                    id: data[data.length - 1].id + 1,
+                    id: data.length ? data[data.length - 1].id + 1 : 1,
                     date: eventDate,
                     eventName: addEventNameInput,
                     note: addEventNoteInput
@@ -231,6 +252,14 @@
             }
         });
 
+        // render calendar
+        function renderCalendar() {
+            document.getElementById("calendar").removeChild(document.querySelector('.calendar'));
+            calendar = buildTable(date.getFullYear(), date.getMonth());
+            container.appendChild(calendar);
+            document.querySelector('body').setAttribute('data-open-add-event', 'false');
+        }
+
         // close dialog
         addEventListener(document, 'click', function (e) {
 
@@ -243,7 +272,6 @@
         });
 
         // save edited event data
-
         addEventListener(document, 'click', function (e) {
 
             if (!(e.target.className.indexOf("edit-btn") !== -1)) {

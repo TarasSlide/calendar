@@ -1,6 +1,14 @@
-body {
-    font-family: Arial;
+html {
+    font-size: 10px;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    background: #fff;
 }
+
+body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 12px;
+}
+
 
 * {
     box-sizing: border-box;
@@ -85,11 +93,34 @@ body {
     cursor: pointer;
 }
 
+.btn, .primary-btn, .default-btn {
+    display: inline-block;
+    margin-bottom: 0;
+    font-weight: 300;
+    text-align: center;
+    vertical-align: middle;
+    touch-action: manipulation;
+    cursor: pointer;
+    background-image: none;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    padding: 5px 15px;
+    font-size: 14px;
+    border-radius: 3px;
+}
+
 .primary-btn {
     background-color: #488fff;
-    border-radius: 3px;
     color: #fff;
     border: 1px solid #2351ff;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.default-btn {
+    background-color: #f2f2f2;
+    color: #595959;
+    border: 1px solid #d6d6d6;
     padding: 5px 10px;
     cursor: pointer;
 }
