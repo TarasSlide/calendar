@@ -40,6 +40,13 @@ body {
     background-color: #ffdfda;
 }
 
+.day-head-wrap {
+    padding: 10px;
+    border: none;
+    text-align: left;
+    font-weight: 100;
+}
+
 .day .day-wrap {
     min-height: 120px;
     min-width: 200px;
@@ -125,6 +132,15 @@ body {
     cursor: pointer;
 }
 
+.btn-link {
+    background-color: transparent;
+    color: #3e5bc3;
+    border: 1px solid transparent;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-weight: 900;
+}
+
 .task-title {
     margin: 0;
     margin-bottom: 20px;
@@ -146,6 +162,10 @@ body {
     border: 1px solid #000;
 }
 
+.event-date {
+    margin: 10px 0;
+}
+
 .calendar-item {
     display: block;
     padding: 3px;
@@ -154,17 +174,11 @@ body {
     font-size: 12px;
 }
 
-.calendar-control {
-    background-color: rgb(225, 225, 225);
-    border: 1px solid rgba(170, 170, 170, .7);
-    cursor: pointer;
-    display: inline-block;
-    padding: 4px 12px;
-}
-
-.calendar-control[data-calendar-control="prev"] {
-    float: left;
-}
-.calendar-control[data-calendar-control="next"] {
-    float: right;
+.add-event .date-edit-input {
+    width: 100px;
+    padding: 1px;
+    display: block;
+    font-size: 12px;
+    line-height: 10px;
+    margin: 10px 0;
 }

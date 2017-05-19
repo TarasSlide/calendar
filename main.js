@@ -33,6 +33,7 @@
 
             var controlDate = new Date(year, month + 1, 0);
             var currDate = new Date(year, month, 1);
+            console.log(currDate);
             var iter = 0;
             var ready = true;
 
@@ -59,6 +60,7 @@
                 }
 
                 currDate = new Date(year, month, ++iter);
+                console.log(currDate);
 
                 tr.appendChild(newDayCell(currDate, iter < 1 || +currDate > +controlDate));
 
@@ -93,7 +95,8 @@
 
             var td = newElement('td');
             var number = newElement('span');
-            var isoDate = dateObj.toISOString();
+            var tzoffset = (new Date()).getTimezoneOffset() * 60000;
+            var isoDate = (new Date(dateObj - tzoffset)).toISOString().slice(0,-1);
 
             isoDate = isoDate.slice(0, isoDate.indexOf('T'));
             number.innerHTML = dateObj.getDate();
@@ -177,12 +180,12 @@
 
             appendHtml(td, `
                 <div class="add-event dialog">
-                    <h3 class="task-title">Task</h3>
+                    <label><input type="checkbox"> Review task results</label>
+                    <input type="text" class="event-date date-edit-input" value="${eventData.date}">
                     <input type="text" class="event-title" value="${eventData.eventName}">
-                    <input type="text" class="event-date" value="${eventData.date}">
                     <textarea rows="6" cols="48" name="note" class="note">${eventData.note}</textarea>
                     <button type="button" class="default-btn close-btn edit-btn" data-edit-event-id="${eventData.id}">Close</button>
-                    <button type="button" class="primary-btn delete-event-btn" data-edit-event-id="${eventData.id}">Delete</button>
+                    <button type="button" class="btn-link delete-event-btn" data-edit-event-id="${eventData.id}">Delete</button>
                 </div>
             `);
         });
@@ -235,7 +238,7 @@
                 }
             });
 
-            if (addEventNameInput && eventDate) {
+            if (eventDate) {
 
                 events.push({
                     id: data.length ? data[data.length - 1].id + 1 : 1,
@@ -295,9 +298,8 @@
                     editEventNoteInput = item.value ? item.value : 'no note';
                 }
 
-                if (item.className == "event-date") {
+                if (item.className && item.className.indexOf("event-date") !== -1) {
                     eventDate = item.value;
-                    console.log(eventDate);
                 }
             });
 
