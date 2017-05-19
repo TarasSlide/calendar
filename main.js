@@ -33,7 +33,6 @@
 
             var controlDate = new Date(year, month + 1, 0);
             var currDate = new Date(year, month, 1);
-            console.log(currDate);
             var iter = 0;
             var ready = true;
 
@@ -60,7 +59,6 @@
                 }
 
                 currDate = new Date(year, month, ++iter);
-                console.log(currDate);
 
                 tr.appendChild(newDayCell(currDate, iter < 1 || +currDate > +controlDate));
 
@@ -96,10 +94,11 @@
             var td = newElement('td');
             var number = newElement('span');
             var tzoffset = (new Date()).getTimezoneOffset() * 60000;
-            var isoDate = (new Date(dateObj - tzoffset)).toISOString().slice(0,-1);
+            var isoDate = (new Date(dateObj - tzoffset)).toISOString().slice(0, -1);
+            var mS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
 
             isoDate = isoDate.slice(0, isoDate.indexOf('T'));
-            number.innerHTML = dateObj.getDate();
+            number.innerHTML = dateObj.getDate() == 1 ? mS[dateObj.getMonth()] + ' ' + dateObj.getDate() : dateObj.getDate();
             number.className = 'day-wrap';
             number.setAttribute('data-date', isoDate);
 
@@ -119,7 +118,11 @@
                 if (data[i].date === isoDate) {
                     number.setAttribute('data-has-event', 'true');
                     var item = newElement('span');
-                    item.innerHTML = data[i].eventName;
+                    item.innerHTML = `
+                        <input type="checkbox" ${data[i].done ? 'checked' : ''} disabled/>
+                        <label></label>
+                        ${data[i].eventName}
+                    `;
                     item.className = 'calendar-item';
                     item.setAttribute('data-id', data[i].id);
                     number.appendChild(item);
@@ -176,11 +179,9 @@
 
             eventData = eventData[0];
 
-            console.log(eventData);
-
             appendHtml(td, `
                 <div class="add-event dialog">
-                    <label><input type="checkbox"> Review task results</label>
+                    <input type="checkbox" class="done-checkbox" ${eventData.done ? 'checked' : ''} id="check-${eventData.id}"><label for="check-${eventData.id}"> Review task results</label>
                     <input type="text" class="event-date date-edit-input" value="${eventData.date}">
                     <input type="text" class="event-title" value="${eventData.eventName}">
                     <textarea rows="6" cols="48" name="note" class="note">${eventData.note}</textarea>
@@ -201,8 +202,6 @@
             var eventId = event.getAttribute('data-edit-event-id');
 
             events.forEach(function (item, i) {
-                console.log(item);
-                console.log(eventId);
                 if (item.id == eventId) {
                     events.splice(eventId - 1, 1);
                 }
@@ -287,6 +286,7 @@
             var editEventNameInput = null;
             var editEventNoteInput = null;
             var eventDate = null;
+            var done = null;
 
             editEventElements.forEach(function (item, i) {
 
@@ -301,15 +301,21 @@
                 if (item.className && item.className.indexOf("event-date") !== -1) {
                     eventDate = item.value;
                 }
+
+                if (item.className == "done-checkbox") {
+                    done = item.checked;
+                }
+
+                //done-checkbox
             });
 
             if (editEventNameInput && eventDate) {
                 events.forEach(function (item, i) {
 
                     if (item.id == eventId) {
-                        console.log(item);
                         events[i] = {
                             id: item.id,
+                            done: done,
                             date: eventDate,
                             eventName: editEventNameInput,
                             note: editEventNoteInput
@@ -317,7 +323,6 @@
                     }
                 });
 
-                console.log(events);
                 document.getElementById("calendar").removeChild(document.querySelector('.calendar'));
                 calendar = buildTable(date.getFullYear(), date.getMonth());
                 container.appendChild(calendar);
@@ -367,12 +372,14 @@ const thisYear = new Date().getFullYear();
 var events = [
     {
         id: 1,
+        done: false,
         date: `${thisYear}-05-15`,
         eventName: 'first event',
         note: 'note 1'
     },
     {
         id: 2,
+        done: true,
         date: `${thisYear}-05-16`,
         eventName: 'second event',
         note: 'note 3'
