@@ -202,7 +202,7 @@
 
             storedEvents.forEach(function (item, i) {
                 if (item.id == eventId) {
-                    storedEvents.splice(eventId - 1, 1);
+                    storedEvents.splice(i, 1);
                 }
             });
 
@@ -245,7 +245,6 @@
                     note: addEventNoteInput
                 });
 
-                console.log(localStorage.getItem("events"));
                 renderCalendar()
             }
         });
