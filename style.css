@@ -25,7 +25,6 @@ body {
     border-top: 1px solid #d6d6d6;
     border-left: 1px solid #d6d6d6;
     min-height: 100px;
-    padding: 5px;
     transition: background-color .3s linear;
 }
 
@@ -39,6 +38,7 @@ body {
     display: inline-block;
     position: relative;
     cursor: pointer;
+    margin: 5px;
 }
 
 .add-event [type="text"] {
@@ -118,6 +118,9 @@ body {
 .calendar-item {
     display: block;
     padding: 3px;
+    background-color: #99c6ee;
+    border: 1px solid #6297aa;
+    font-size: 12px;
 }
 
 .calendar-control {

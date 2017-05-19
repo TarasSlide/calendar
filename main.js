@@ -30,6 +30,7 @@
         container.appendChild(calendar);
 
         function buildTable(year, month) {
+
             var controlDate = new Date(year, month + 1, 0);
             var currDate = new Date(year, month, 1);
             var iter = 0;
@@ -45,6 +46,7 @@
             }
 
             while (ready) {
+
                 if (currDate.getDay() === 6) {
                     if (tr) {
                         tbody.appendChild(tr)
@@ -88,16 +90,17 @@
         }
 
         function newDayCell(dateObj, isOffset) {
+
             var td = newElement('td');
             var number = newElement('span');
             var isoDate = dateObj.toISOString();
-            isoDate = isoDate.slice(0, isoDate.indexOf('T'));
 
+            isoDate = isoDate.slice(0, isoDate.indexOf('T'));
             number.innerHTML = dateObj.getDate();
             number.className = 'day-wrap';
             number.setAttribute('data-date', isoDate);
 
-            var currDate = new Date().toJSON().slice(0,10).split('-')[2];
+            var currDate = new Date().toJSON().slice(0, 10).split('-')[2];
 
             if (dateObj.getDate() == currDate) {
                 td.className = 'current-day ';
@@ -106,15 +109,16 @@
             td.className += isOffset ? 'day adj-month' : 'day';
             td.setAttribute('data-date', isoDate);
             td.setAttribute('data-has-event', 'false');
-
             td.appendChild(number);
 
             for (var i = 0; i < data.length; i++) {
+
                 if (data[i].date === isoDate) {
                     number.setAttribute('data-has-event', 'true');
                     var item = newElement('span');
                     item.innerHTML = data[i].eventName;
                     item.className = 'calendar-item';
+                    item.setAttribute('data-id', data[i].id);
                     number.appendChild(item);
                 }
             }
@@ -122,51 +126,103 @@
             return td
         }
 
+        // show add task dialog on day click
         addEventListener(document, 'click', function (e) {
-            var td = e.target;
+
             if (!(e.target.className == 'day-wrap')) {
                 return;
             }
-            console.log(td.getAttribute('data-has-event') == 'true');
+
+            var td = e.target;
             var body = document.querySelector('body');
+
             if (body.getAttribute('data-open-add-event') == 'true' || td.getAttribute('data-has-event') == 'true') {
                 console.log('return');
                 return;
             }
+
             appendHtml(td, `
-                <div class="add-event">
+                <div class="add-event dialog">
                     <h3 class="task-title">Task</h3>
-                    <button type="button" class="close">&times;</button>
-                    <input type="text" class="event-date" value="${td.getAttribute('data-date')}">
-                    <input type="text" class="event-name-input">
+                    <button type="button" class="close close-btn">&times;</button>
+                    <label>When</label>
+                    <div class="event-date">${td.getAttribute('data-date')}</div>
+                    <input type="text" class="event-name-input" placeholder="Task title...">
+                    <label>Note</label>
+                    <input type="text" class="event-note-input">
                     <button type="button" class="create-event-btn primary-btn">Create</button>
                 </div>
             `);
+
             body.setAttribute('data-open-add-event', 'true');
         });
 
+        // show edit dialog on event click
         addEventListener(document, 'click', function (e) {
+
+            if (!(e.target.className == 'calendar-item')) {
+                return;
+            }
+
+            var event = e.target;
+            var td = event.parentNode;
+
+            var eventData = events.filter(function (item, i) {
+                return item.id == event.getAttribute('data-id');
+            });
+
+            eventData = eventData[0];
+
+            console.log(eventData);
+
+            appendHtml(td, `
+                <div class="add-event dialog">
+                    <h3 class="task-title">Task</h3>
+                    <input type="text" class="event-date" value="${eventData.eventName}">
+                    <textarea rows="6" cols="48" name="note">${eventData.note}</textarea>
+                    <button type="button" class="primary-btn close-btn">Close</button>
+                    <button type="button" class="primary-btn">Delete</button>
+                </div>
+            `);
+        });
+
+        // create event on create btn click
+        addEventListener(document, 'click', function (e) {
+
             if (!(e.target.className.indexOf("create-event-btn") !== -1)) {
                 return;
             }
+
             var addEventElements = e.target.parentNode.childNodes;
             var addEventNameInput = null;
+            var addEventNoteInput = null;
             var eventDate = null;
+
             addEventElements.forEach(function (item, i) {
+
                 if (item.className == "event-name-input") {
                     addEventNameInput = item.value;
                 }
+
+                if (item.className == "event-note-input") {
+                    addEventNoteInput = item.value ? item.value : 'no note';
+                }
+
                 if (item.className == "event-date") {
-                    eventDate = item.value;
+                    eventDate = item.innerHTML;
                 }
             });
 
             if (addEventNameInput && eventDate) {
+
                 events.push({
-                    date:  eventDate,
-                    eventName: addEventNameInput
+                    id: data[data.length - 1].id + 1,
+                    date: eventDate,
+                    eventName: addEventNameInput,
+                    note: addEventNoteInput
                 });
 
+                console.log(events);
                 document.getElementById("calendar").removeChild(document.querySelector('.calendar'));
                 calendar = buildTable(date.getFullYear(), date.getMonth());
                 container.appendChild(calendar);
@@ -174,13 +230,15 @@
             }
         });
 
+        // close dialog
         addEventListener(document, 'click', function (e) {
-            if (!(e.target.className.indexOf("close") !== -1)) {
+
+            if (!(e.target.className.indexOf("close-btn") !== -1)) {
                 return;
             }
-            document.querySelector('.add-event').remove();
-            document.querySelector('body').setAttribute('data-open-add-event', 'false');
 
+            document.querySelector('.dialog').remove();
+            document.querySelector('body').setAttribute('data-open-add-event', 'false');
         });
 
         function newElement(tagName) {
@@ -188,6 +246,7 @@
         }
 
         function addEventListener(target, event, handler) {
+
             if (document.addEventListener) {
                 target.addEventListener(event, handler, false)
             } else {
@@ -196,15 +255,19 @@
         }
 
         function removeEventListener(target, event, handler) {
+
             if (document.removeEventListener) {
                 target.removeEventListener(event, handler, false)
             } else {
                 target.detachEvent('on' + event, handler)
             }
         }
+
         function appendHtml(el, str) {
+
             var div = document.createElement('div');
             div.innerHTML = str;
+
             while (div.children.length > 0) {
                 el.appendChild(div.children[0]);
             }
@@ -218,11 +281,13 @@
 const thisYear = new Date().getFullYear();
 var events = [
     {
+        id: 1,
         date: `${thisYear}-05-15`,
         eventName: 'first event',
         note: 'note 1'
     },
     {
+        id: 2,
         date: `${thisYear}-05-16`,
         eventName: 'second event',
         note: 'note 3'
