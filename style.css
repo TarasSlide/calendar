@@ -19,8 +19,7 @@ body {
 }
 
 .calendar-container {
-    width: 100%;
-    max-width: 1400px;
+    width: 1100px;
     margin: auto;
 }
 
@@ -50,7 +49,7 @@ body {
 
 .day .day-wrap {
     min-height: 120px;
-    min-width: 200px;
+    min-width: 150px;
     display: inline-block;
     position: relative;
     cursor: pointer;
@@ -137,6 +136,11 @@ body {
 
 .create-event-btn {
     float: right;
+}
+
+.note {
+    margin-bottom: 20px;
+    min-width: 360px;
 }
 
 .day > .head {

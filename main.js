@@ -1,5 +1,5 @@
 ;(function () {
-    document.querySelector('body').setAttribute('data-open-add-event', 'false')
+    document.querySelector('body').setAttribute('data-open-add-event', 'false');
     function Calendar(target, date, data) {
         var date;
         var calendar;
@@ -143,7 +143,6 @@
             var body = document.querySelector('body');
 
             if (body.getAttribute('data-open-add-event') == 'true' || td.getAttribute('data-has-event') == 'true') {
-                console.log('return');
                 return;
             }
 
@@ -173,7 +172,7 @@
             var event = e.target;
             var td = event.parentNode;
 
-            var eventData = events.filter(function (item, i) {
+            var eventData = storedEvents.filter(function (item, i) {
                 return item.id == event.getAttribute('data-id');
             });
 
@@ -201,9 +200,9 @@
             var event = e.target;
             var eventId = event.getAttribute('data-edit-event-id');
 
-            events.forEach(function (item, i) {
+            storedEvents.forEach(function (item, i) {
                 if (item.id == eventId) {
-                    events.splice(eventId - 1, 1);
+                    storedEvents.splice(eventId - 1, 1);
                 }
             });
 
@@ -239,28 +238,17 @@
 
             if (eventDate) {
 
-                events.push({
+                storedEvents.push({
                     id: data.length ? data[data.length - 1].id + 1 : 1,
                     date: eventDate,
                     eventName: addEventNameInput,
                     note: addEventNoteInput
                 });
 
-                console.log(events);
-                document.getElementById("calendar").removeChild(document.querySelector('.calendar'));
-                calendar = buildTable(date.getFullYear(), date.getMonth());
-                container.appendChild(calendar);
-                document.querySelector('body').setAttribute('data-open-add-event', 'false');
+                console.log(localStorage.getItem("events"));
+                renderCalendar()
             }
         });
-
-        // render calendar
-        function renderCalendar() {
-            document.getElementById("calendar").removeChild(document.querySelector('.calendar'));
-            calendar = buildTable(date.getFullYear(), date.getMonth());
-            container.appendChild(calendar);
-            document.querySelector('body').setAttribute('data-open-add-event', 'false');
-        }
 
         // close dialog
         addEventListener(document, 'click', function (e) {
@@ -310,10 +298,10 @@
             });
 
             if (editEventNameInput && eventDate) {
-                events.forEach(function (item, i) {
+                storedEvents.forEach(function (item, i) {
 
                     if (item.id == eventId) {
-                        events[i] = {
+                        storedEvents[i] = {
                             id: item.id,
                             done: done,
                             date: eventDate,
@@ -323,10 +311,7 @@
                     }
                 });
 
-                document.getElementById("calendar").removeChild(document.querySelector('.calendar'));
-                calendar = buildTable(date.getFullYear(), date.getMonth());
-                container.appendChild(calendar);
-                document.querySelector('body').setAttribute('data-open-add-event', 'false');
+                renderCalendar()
             }
 
         });
@@ -362,6 +347,15 @@
                 el.appendChild(div.children[0]);
             }
         }
+
+        // render calendar
+        function renderCalendar() {
+            localStorage.setItem("events", JSON.stringify(storedEvents));
+            document.getElementById("calendar").removeChild(document.querySelector('.calendar'));
+            calendar = buildTable(date.getFullYear(), date.getMonth());
+            container.appendChild(calendar);
+            document.querySelector('body').setAttribute('data-open-add-event', 'false');
+        }
     }
 
     this.calendar = Calendar
@@ -369,6 +363,8 @@
 }).call(this);
 
 const thisYear = new Date().getFullYear();
+
+// default values
 var events = [
     {
         id: 1,
@@ -386,4 +382,6 @@ var events = [
     }
 ];
 
-calendar('#calendar', events);
+var storedEvents = localStorage.getItem("events") ? JSON.parse(localStorage.getItem("events")) : events;
+
+calendar('#calendar', storedEvents);
