@@ -1,10 +1,61 @@
 ;(function () {
+
     document.querySelector('body').setAttribute('data-open-add-event', 'false');
+
+    const thisYear = new Date().getFullYear();
+
+    // default values
+    var events = [
+        {
+            id: 1,
+            done: false,
+            date: `${thisYear}-05-15`,
+            eventName: 'first event',
+            note: 'note 1'
+        },
+        {
+            id: 2,
+            done: true,
+            date: `${thisYear}-05-16`,
+            eventName: 'second event',
+            note: 'note 3'
+        }
+    ];
+
+    // get data from local storage. if no data set default values
+    var storedEvents = localStorage.getItem("events") ? JSON.parse(localStorage.getItem("events")) : events;
+
+    // reusable functions
+    function appendHtml(el, str) {
+
+        var div = document.createElement('div');
+        div.innerHTML = str;
+
+        while (div.children.length > 0) {
+            el.appendChild(div.children[0]);
+        }
+    }
+
+    function newElement(tagName) {
+        return document.createElement(tagName)
+    }
+
+    function addEventListener(target, event, handler) {
+
+        if (document.addEventListener) {
+            target.addEventListener(event, handler, false)
+        } else {
+            target.attachEvent('on' + event, handler)
+        }
+    }
+
     function Calendar(target, date, data) {
+
         var date;
         var calendar;
         var container;
 
+        //check date type
         switch (typeof date) {
             case 'string':
                 date = date.split('-');
@@ -17,8 +68,6 @@
                 if (date instanceof Array) {
                     data = date;
                     date = new Date()
-                } else {
-                    date = date;
                 }
                 break;
             default:
@@ -28,66 +77,6 @@
         container = document.querySelector(target);
         calendar = buildTable(date.getFullYear(), date.getMonth());
         container.appendChild(calendar);
-
-        function buildTable(year, month) {
-
-            var controlDate = new Date(year, month + 1, 0);
-            var currDate = new Date(year, month, 1);
-            var iter = 0;
-            var ready = true;
-
-            var table = newElement('table');
-            var thead = newElement('thead');
-            var tbody = newElement('tbody');
-            var tr;
-
-            if (currDate.getDay() !== 0) {
-                iter = 0 - currDate.getDay()
-            }
-
-            while (ready) {
-
-                if (currDate.getDay() === 6) {
-                    if (tr) {
-                        tbody.appendChild(tr)
-                    }
-                    tr = null
-                }
-
-                if (!tr) {
-                    tr = newElement('tr')
-                }
-
-                currDate = new Date(year, month, ++iter);
-
-                tr.appendChild(newDayCell(currDate, iter < 1 || +currDate > +controlDate));
-
-                if (+controlDate < +currDate && currDate.getDay() === 0) {
-                    ready = false
-                }
-
-            }
-
-            thead.innerHTML = '<tr>' +
-                '<th class="day day-head-wrap"><span class="head">Sun</span></th>' +
-                '<th class="day day-head-wrap"><span class="head">Mon</span></th>' +
-                '<th class="day day-head-wrap"><span class="head">Tue</span></th>' +
-                '<th class="day day-head-wrap"><span class="head">Wed</span></th>' +
-                '<th class="day day-head-wrap"><span class="head">Thu</span></th>' +
-                '<th class="day day-head-wrap"><span class="head">Fri</span></th>' +
-                '<th class="day day-head-wrap"><span class="head">Sat</span></th>' +
-                '</tr>';
-
-            table.appendChild(thead);
-            table.appendChild(tbody);
-
-            table.className = 'calendar';
-            table.setAttribute('cellspacing', 0);
-            table.setAttribute('cellpadding', 0);
-            table.setAttribute('data-period', year + '-' + (month));
-
-            return table
-        }
 
         function newDayCell(dateObj, isOffset) {
 
@@ -132,6 +121,66 @@
             return td
         }
 
+        function buildTable(year, month) {
+
+            var controlDate = new Date(year, month + 1, 0);
+            var currDate = new Date(year, month, 1);
+            var iter = 0;
+            var ready = true;
+
+            var table = newElement('table');
+            var thead = newElement('thead');
+            var tbody = newElement('tbody');
+            var tr;
+
+            if (currDate.getDay() !== 0) {
+                iter = 0 - currDate.getDay()
+            }
+
+            while (ready) {
+
+                if (currDate.getDay() === 6) {
+                    if (tr) {
+                        tbody.appendChild(tr)
+                    }
+                    tr = null
+                }
+
+                if (!tr) {
+                    tr = newElement('tr')
+                }
+
+                currDate = new Date(year, month, ++iter);
+
+                tr.appendChild(newDayCell(currDate, iter < 1 || +currDate > +controlDate));
+
+                if (+controlDate < +currDate && currDate.getDay() === 0) {
+                    ready = false
+                }
+
+            }
+
+            thead.innerHTML = `<tr>
+                                   <th class="day day-head-wrap"><span class="head">Sun</span></th>
+                                   <th class="day day-head-wrap"><span class="head">Mon</span></th>
+                                   <th class="day day-head-wrap"><span class="head">Tue</span></th>
+                                   <th class="day day-head-wrap"><span class="head">Wed</span></th>
+                                   <th class="day day-head-wrap"><span class="head">Thu</span></th>
+                                   <th class="day day-head-wrap"><span class="head">Fri</span></th>
+                                   <th class="day day-head-wrap"><span class="head">Sat</span></th>
+                               </tr>`;
+
+            table.appendChild(thead);
+            table.appendChild(tbody);
+
+            table.className = 'calendar';
+            table.setAttribute('cellspacing', 0);
+            table.setAttribute('cellpadding', 0);
+            table.setAttribute('data-period', year + '-' + (month));
+
+            return table
+        }
+
         // show add task dialog on day click
         addEventListener(document, 'click', function (e) {
 
@@ -171,7 +220,6 @@
 
             var event = e.target;
             var td = event.parentNode;
-
             var eventData = storedEvents.filter(function (item, i) {
                 return item.id == event.getAttribute('data-id');
             });
@@ -296,56 +344,21 @@
                 //done-checkbox
             });
 
-            if (editEventNameInput && eventDate) {
-                storedEvents.forEach(function (item, i) {
+            storedEvents.forEach(function (item, i) {
 
-                    if (item.id == eventId) {
-                        storedEvents[i] = {
-                            id: item.id,
-                            done: done,
-                            date: eventDate,
-                            eventName: editEventNameInput,
-                            note: editEventNoteInput
-                        };
-                    }
-                });
-
-                renderCalendar()
-            }
+                if (item.id == eventId) {
+                    storedEvents[i] = {
+                        id: item.id,
+                        done: done,
+                        date: eventDate,
+                        eventName: editEventNameInput,
+                        note: editEventNoteInput
+                    };
+                }
+            });
+            renderCalendar();
 
         });
-
-        function newElement(tagName) {
-            return document.createElement(tagName)
-        }
-
-        function addEventListener(target, event, handler) {
-
-            if (document.addEventListener) {
-                target.addEventListener(event, handler, false)
-            } else {
-                target.attachEvent('on' + event, handler)
-            }
-        }
-
-        function removeEventListener(target, event, handler) {
-
-            if (document.removeEventListener) {
-                target.removeEventListener(event, handler, false)
-            } else {
-                target.detachEvent('on' + event, handler)
-            }
-        }
-
-        function appendHtml(el, str) {
-
-            var div = document.createElement('div');
-            div.innerHTML = str;
-
-            while (div.children.length > 0) {
-                el.appendChild(div.children[0]);
-            }
-        }
 
         // render calendar
         function renderCalendar() {
@@ -357,30 +370,9 @@
         }
     }
 
-    this.calendar = Calendar
+    this.calendar = Calendar;
+    calendar('#calendar', storedEvents);
 
 }).call(this);
 
-const thisYear = new Date().getFullYear();
 
-// default values
-var events = [
-    {
-        id: 1,
-        done: false,
-        date: `${thisYear}-05-15`,
-        eventName: 'first event',
-        note: 'note 1'
-    },
-    {
-        id: 2,
-        done: true,
-        date: `${thisYear}-05-16`,
-        eventName: 'second event',
-        note: 'note 3'
-    }
-];
-
-var storedEvents = localStorage.getItem("events") ? JSON.parse(localStorage.getItem("events")) : events;
-
-calendar('#calendar', storedEvents);
