@@ -178,9 +178,10 @@
             appendHtml(td, `
                 <div class="add-event dialog">
                     <h3 class="task-title">Task</h3>
-                    <input type="text" class="event-date" value="${eventData.eventName}">
-                    <textarea rows="6" cols="48" name="note">${eventData.note}</textarea>
-                    <button type="button" class="primary-btn close-btn">Close</button>
+                    <input type="text" class="event-title" value="${eventData.eventName}">
+                    <input type="text" class="event-date" value="${eventData.date}">
+                    <textarea rows="6" cols="48" name="note" class="note">${eventData.note}</textarea>
+                    <button type="button" class="primary-btn close-btn edit-btn" data-edit-event-id="${eventData.id}">Close</button>
                     <button type="button" class="primary-btn">Delete</button>
                 </div>
             `);
@@ -239,6 +240,60 @@
 
             document.querySelector('.dialog').remove();
             document.querySelector('body').setAttribute('data-open-add-event', 'false');
+        });
+
+        // save edited event data
+
+        addEventListener(document, 'click', function (e) {
+
+            if (!(e.target.className.indexOf("edit-btn") !== -1)) {
+                return;
+            }
+
+            var event = e.target;
+            var eventId = event.getAttribute('data-edit-event-id');
+            var editEventElements = e.target.parentNode.childNodes;
+            var editEventNameInput = null;
+            var editEventNoteInput = null;
+            var eventDate = null;
+
+            editEventElements.forEach(function (item, i) {
+
+                if (item.className == "event-title") {
+                    editEventNameInput = item.value;
+                }
+
+                if (item.className == "note") {
+                    editEventNoteInput = item.value ? item.value : 'no note';
+                }
+
+                if (item.className == "event-date") {
+                    eventDate = item.value;
+                    console.log(eventDate);
+                }
+            });
+
+            if (editEventNameInput && eventDate) {
+                events.forEach(function (item, i) {
+
+                    if (item.id == eventId) {
+                        console.log(item);
+                        events[i] = {
+                            id: item.id,
+                            date: eventDate,
+                            eventName: editEventNameInput,
+                            note: editEventNoteInput
+                        };
+                    }
+                });
+
+                console.log(events);
+                document.getElementById("calendar").removeChild(document.querySelector('.calendar'));
+                calendar = buildTable(date.getFullYear(), date.getMonth());
+                container.appendChild(calendar);
+                document.querySelector('body').setAttribute('data-open-add-event', 'false');
+            }
+
         });
 
         function newElement(tagName) {
